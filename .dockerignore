@@ -1,0 +1,22 @@
+# Build artifacts and caches that we don't want to ship into images.
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+**/node_modules/
+**/dist/
+**/.vite/
+
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local env files must never end up in the image.
+**/.env
+**/.env.local
+**/.env.*.local

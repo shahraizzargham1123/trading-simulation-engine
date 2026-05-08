@@ -49,7 +49,44 @@ PnL math lives in `utils/calculations.py` so it's easy to test in isolation. Ave
 
 ## Running it
 
-Setup notes will land here as the phases come together. Once Docker is wired up at the end, the goal is `docker compose up` and you're trading.
+The whole thing runs out of Docker Compose. You need Docker Desktop installed and that's it.
+
+### One-time setup
+
+Copy the env template into a real `.env` (gitignored) at the repo root:
+
+```
+copy .env.example .env
+```
+
+Open `.env` and adjust anything you want. The defaults are fine for a first boot. If you want real market data instead of the simulator, change two lines:
+
+```
+PRICE_SOURCE=alphavantage
+ALPHA_VANTAGE_API_KEY=your_key_here
+```
+
+Free Alpha Vantage keys give you 25 calls per day, so the simulator stays the default. The backend caches quotes so it doesn't blow through the quota on every tick.
+
+### Boot
+
+```
+docker compose up --build
+```
+
+That builds three images and starts them in order: Postgres, then the backend (which runs migrations on startup and seeds the demo user with $10k), then the frontend served by nginx.
+
+Open http://localhost:5173 and you should see the dashboard. Prices start ticking, you can buy and sell, and your PnL updates in real time.
+
+### Common tweaks
+
+- Stop everything: `docker compose down`
+- Reset the database too: `docker compose down -v` (deletes the postgres_data volume)
+- Watch backend logs only: `docker compose logs -f backend`
+
+### Local dev without Docker
+
+If you want to hack on the backend or frontend without rebuilding images each time, you can run them on the host and point them at the dockerized Postgres. Backend wants `backend/.env` (copy from `backend/.env.example`); frontend wants `frontend/.env` (copy from `frontend/.env.example`). Then `uvicorn app.main:app --reload` in `backend/` and `npm run dev` in `frontend/`.
 
 ## A note on the user model
 

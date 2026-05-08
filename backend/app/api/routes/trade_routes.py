@@ -9,6 +9,7 @@ from app.schemas.trade_schema import TradeRequest, TradeOut
 from app.services.pricing_service import get_price_provider
 from app.services.trading_service import execute_trade, TradeError
 from app.utils.helpers import normalize_symbol
+from app.websocket.broadcaster import push_portfolio_update
 
 router = APIRouter(prefix="/trades", tags=["trades"])
 
@@ -36,6 +37,10 @@ async def place_trade(
         )
     except TradeError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # Push an immediate snapshot so the UI updates without waiting for
+    # the next price tick.
+    await push_portfolio_update(user.id)
 
     return TradeOut.model_validate(trade)
 

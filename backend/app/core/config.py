@@ -1,6 +1,6 @@
-from typing import List
+from typing import Annotated, List
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -20,7 +20,11 @@ class Settings(BaseSettings):
 
     price_source: str = Field(default="simulated")
     price_tick_seconds: float = Field(default=3.0)
-    tracked_symbols: List[str] = Field(default_factory=lambda: ["AAPL", "TSLA", "GOOG", "MSFT", "AMZN"])
+    # NoDecode prevents pydantic-settings from JSON-parsing the env value
+    # before our validator runs, so a comma-separated TRACKED_SYMBOLS works.
+    tracked_symbols: Annotated[List[str], NoDecode] = Field(
+        default_factory=lambda: ["AAPL", "TSLA", "GOOG", "MSFT", "AMZN"]
+    )
 
     alpha_vantage_api_key: str = Field(default="")
     alpha_vantage_base_url: str = Field(default="https://www.alphavantage.co/query")
